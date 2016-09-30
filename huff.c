@@ -120,7 +120,7 @@ PriorityQueue *creat_queue(PriorityQueue *Queue)
 		Node *aux = Queue->first;
 		while(aux!= NULL)
 		{
-			printf("frequency %d caracter %c\n", aux->frequency, aux->caracter);
+			//printf("frequency %d caracter %c\n", aux->frequency, aux->caracter);
 			aux = aux->nextNode;
 		}
 	return Queue;
@@ -158,13 +158,14 @@ Node *dequeue(PriorityQueue *Queue, Node *newNode)
 
 */
 
-PriorityQueue *creat_father(PriorityQueue *Queue, Node *father, Node *left, Node *right)
+PriorityQueue *creat_father(PriorityQueue *Queue, Node *left, Node *right)
 {
+	Node *father = (Node*) calloc(1,sizeof(Node));
 	father->caracter = '*';
 	father->frequency = (left->frequency + right->frequency);
 	father->left = left;
 	father->right = right;
-	printf("esquerda %c  direita %c frequency pai %d\n", left->caracter, right->caracter, father->frequency);
+	//printf("esquerda %c  direita %c frequency pai %d\n", left->caracter, right->caracter, father->frequency);
 	Queue = enqueue(Queue,father);
 	return Queue;
 }
@@ -180,8 +181,7 @@ PriorityQueue *creat_tree(PriorityQueue *Queue)
 	{
 		Node *left = dequeue(Queue, left);
 		Node *right = dequeue(Queue, right);
-		Node *father = (Node*) calloc(1,sizeof(Node));
-		Queue = creat_father(Queue, father, left, right);
+		Queue = creat_father(Queue, left, right);
 		creat_tree(Queue);
 	}
 	
@@ -239,29 +239,24 @@ void crearebits(Node *first, int idx){
     }
 }
 
-void creat_Header(int trash, Node *root)
+void creat_Header(FILE *output, int trash, Node *root)
 {
-	FILE *file;
-	int i;
+	int i=0;
 	pre_order (root);
-	unsigned char first_byte = 0;
-	first_byte = trash<<5;
-	first_byte |= ((cou>>8)&(0xFF));
-	unsigned char second_byte = 0;
-	second_byte = (size_tree)&(0xFF);
-	file = fopen("text", "wb");
-	fputc(first_byte, file);
-	fputc(second_byte, file);
+	//output = fopen("text", "wb");
+	fputc('0', output);
+	fputc('0', output);
 		while(string[i] != '\0')
 		{
-			fputc(string[i], file); // valor do formato inteiro , file
+			printf("i: %d caracter: %c\n",i,string[i]);
+			fputc(string[i], output); // valor do formato inteiro , file
 			++i;
 		}
 }
 
 void descomprimir()
 {
-	FILE *file
+	FILE *file;
 	file = fopen("text", "rb");
 	unsigned char first_byte, second_byte;
 	first_byte = fgetc(file);
@@ -272,9 +267,79 @@ void descomprimir()
 	tree = tree<<5;  
 	second_byte = fgetc(file);
 	tree |= second_byte;
-	printf("lixo%d Arvore%d\n", trash, tree);
+	//printf("lixo%d Arvore%d\n", trash, tree);
 
 
+}
+
+int potencia(int i,int j){
+    int result=1;
+    while(j)
+    {
+    result*=i;
+    j--;
+    }
+    return result;
+}
+ 
+int nbyte(char *byte){
+    int i, k;
+    k = 0;
+    int contador = 0;
+    for(i = 7; i >= 0; i--)
+    {
+        if(byte[i] == '1')
+        {
+            contador += potencia(2, k);
+        }
+        k++;
+    }
+   
+    return contador;
+}
+
+ int compress(FILE *file, FILE *output)
+ {
+   	file = fopen("bla", "rb");
+    int i, k, trash;
+    k = trash = 0;
+    unsigned char x;
+    char apoio[20];
+    char byte[8];
+    memset(apoio, '*', sizeof apoio);
+    memset(byte, '*', sizeof byte);
+    char negativo;
+    unsigned char positivo;
+    while((negativo = (positivo = fgetc(file))) != EOF)
+    {
+        memcpy(apoio, sequenc[positivo].bits, strlen(sequenc[positivo].bits));
+        for(i = 0; apoio[i] != '*'; i++)
+        {
+            byte[k] = apoio[i];
+            k++;
+            if(k == 8)
+            {
+
+                x = nbyte(byte);
+                printf("aqui:%c\n",x);
+                fputc(x, output);
+                k = 0;
+                memset(byte, '*', sizeof byte);
+            }
+        }
+        memset(apoio, '*', sizeof apoio);
+    }
+    for(i = 0; byte[i] != '*'; i++)trash = i;
+    	
+    unsigned char first_byte, second_byte;
+	first_byte = second_byte = 0;
+	first_byte = trash<<5;
+	first_byte |= ((size_tree>>8)&(0xFF));
+	second_byte = (size_tree)&(0xFF);
+    fseek(output, 0, SEEK_SET);
+	fputc(first_byte, output);
+	fputc(second_byte, output);
+    return trash;
 }
 
 
@@ -282,9 +347,11 @@ void descomprimir()
 int main()
 {
 	PriorityQueue *Queue;
-	int i;
+	int i, trash;
 	FILE *file;
+	FILE *output;
 	file = fopen("bla", "rb"); //rb = abre o arquivo em modo de leitura como binario 
+	output = fopen("text", "wb");
 	if(file == NULL)
 	{
 		printf("arquivo inexistente");
@@ -299,13 +366,21 @@ int main()
 	{
 		array[positivo]++;
 	}
+	/*int m =0;
+	while(m< 256)
+	{
+		if(array[m] != 0)
+		{
+			printf("%d\t%d\n",m, array[m]);
+		}
+		m++;
+	}*/
 	fclose(file);
 	Queue = creat_queue(Queue);
 	Queue = creat_tree(Queue);
 	Node *root= Queue->first;
-	//pre_order(Queue->first);
 	crearebits(Queue->first, 0); //creando a struct de bits
-	printf("\n");
+	//printf("\n");
 	for(i = 0; i < MAX; i++)
     {
     	if(array[i] != 0)
@@ -314,7 +389,8 @@ int main()
         	puts(sequenc[i].bits);  
     	}
     }
-	creat_Header(5, root);	 
+	creat_Header(output, trash, root);	 
+    trash = compress(file, output);
 }
 
 
