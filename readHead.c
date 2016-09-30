@@ -81,7 +81,20 @@ void descomprimir()
 	for(i=0; i<tree; i++)
 	{
 		string_tree[i] = fgetc(file);
+		if(string_tree[i] == '\\')
+		{
+			string_tree[i] = fgetc(file);
+			tree--;
+		}
 		printf("%c\n", string_tree[i]);
 	}
+
+}
+
+
+int main()
+{
+	descomprimir();
+
 
 }

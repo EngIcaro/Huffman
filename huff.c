@@ -117,12 +117,12 @@ PriorityQueue *creat_queue(PriorityQueue *Queue)
 			enqueue(Queue, newNode);
 		}
 	}
-		Node *aux = Queue->first;
+		/*Node *aux = Queue->first;
 		while(aux!= NULL)
 		{
 			printf("frequency %d caracter %c\n", aux->frequency, aux->caracter);
 			aux = aux->nextNode;
-		}
+		}*/
 	return Queue;
 }
 
