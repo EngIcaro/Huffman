@@ -120,7 +120,7 @@ PriorityQueue *creat_queue(PriorityQueue *Queue)
 		Node *aux = Queue->first;
 		while(aux!= NULL)
 		{
-			//printf("frequency %d caracter %c\n", aux->frequency, aux->caracter);
+			printf("frequency %d caracter %c\n", aux->frequency, aux->caracter);
 			aux = aux->nextNode;
 		}
 	return Queue;
@@ -366,15 +366,6 @@ int main()
 	{
 		array[positivo]++;
 	}
-	/*int m =0;
-	while(m< 256)
-	{
-		if(array[m] != 0)
-		{
-			printf("%d\t%d\n",m, array[m]);
-		}
-		m++;
-	}*/
 	fclose(file);
 	Queue = creat_queue(Queue);
 	Queue = creat_tree(Queue);
