@@ -189,7 +189,7 @@ PriorityQueue *creat_tree(PriorityQueue *Queue)
 }
 
 /*
-
+ 			
 
 */
 
@@ -342,6 +342,100 @@ int nbyte(char *byte){
     return trash;
 }
 
+int is_bit_i_set(unsigned char c, int j)
+{
+
+	unsigned char mask = 1<<j;
+	return mask & c;
+}
+
+
+
+/*void write_extract(unsigned char c, int i, Node *root)
+{
+	int j;
+	int bit_set;
+	Node *aux = root;
+	FILE *output = fopen("bla2", "wb");
+	for(j=0; j<8; j++)
+	{
+		bit_set = is_bit_i_set(c, j);
+		printf("esquerda %c, direita%c\n", aux->left->caracter, aux->right->caracter);
+		if(bit_set)
+		{
+			aux = aux->right;
+			//printf("A%c", aux->caracter);
+			if(aux->right == NULL && aux->left == NULL)
+			{
+				printf("POIOI");
+				fputc(aux->caracter, output);
+				aux = root;
+			}
+		}
+		else
+		{
+			aux = aux->left;
+			//printf("B%c", aux->caracter);		
+			if(aux->right == NULL && aux->left == NULL)
+			{
+				fputc(aux->caracter, output);
+				aux = root;
+			}
+		}
+	}
+}
+
+void extract (Node *root)
+{
+	int i;
+	FILE *file;
+	file = fopen("text", "rb");
+	unsigned char positivo, current_char;
+	unsigned char frase[100];
+	char negativo;
+	unsigned int last_char;
+	int bit_set;
+	for(i=0; i<19; i++)
+	{
+		positivo = fgetc(file);
+	}
+	while( (negativo = (positivo = fgetc(file))) != EOF)
+	{
+		i=0;
+		frase[i] = positivo;
+		i++;
+		while(( (negativo = (positivo = fgetc(file))) != EOF) && i<100)
+		{
+			frase[i] = positivo;
+			i++;
+		}
+		if(i == 100)
+		{
+			for(i=0; i<=100; i++)
+			{
+				write_extract(frase[i], i, root);
+			}
+		}
+		else	
+		{
+			last_char = (strlen(frase) - 1);
+			write_extract(frase[20], 20, root);
+		}
+	}
+
+	
+} */
+
+
+
+
+
+
+
+
+
+
+
 
 
 int main()
@@ -382,6 +476,7 @@ int main()
     }
 	creat_Header(output, trash, root);	 
     trash = compress(file, output);
+    //extract(Queue->first);
 }
 
 
