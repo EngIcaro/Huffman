@@ -1,0 +1,204 @@
+#include <errno.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdarg.h>
+#define MAX 1000
+char string_tree[MAX];
+int idx, trash, arvore;
+ 
+typedef struct Tree{
+    char caractere;
+    struct Tree *left;
+    struct Tree *right;
+}Tree;
+ 
+int isEmpty(Tree *bt){
+    return (bt == NULL);
+}
+ 
+Tree *creatempty(){
+    Tree *bt = (Tree*) malloc(sizeof(Tree));
+    bt->caractere = '0';
+    bt->left = NULL;
+    bt->right = NULL;
+    return bt;
+}
+ 
+Tree *createTree(char x){
+    Tree *bt = (Tree*) malloc(sizeof(Tree));
+    bt->caractere = x;
+    bt->left = NULL;
+    bt->right = NULL;
+    return bt;
+}
+ 
+typedef struct Node_list{
+   
+    unsigned char caracter;
+    struct Node_list *NextNode;
+}Node_list;
+ 
+Node_list *creatLinkedList()  // Função de criar a lista
+{
+    return NULL;
+ 
+}
+ 
+Node_list *insertNode(unsigned char c)
+{
+ 
+    Node_list *new = (Node_list*) calloc(1, sizeof(Node_list));     //crio uma nova struct do tipo Node e vai receber um endereço de memoria do tamanho de uma struct
+    new->caracter = c;                              //Valor do item dessa nova struct  
+    new->NextNode = NULL;                           //Vou fazer o Ponteiro NextNode da struct apontar para frist. ou seja essa nova struct node vai apontar para a Node mais recente, se for o primeiro nó ele vai apontar para fristq ue é null
+    return new;                                     //Vou retornar o o endereço de memoria que esse ponteiro está apontando
+}
+ 
+int is_bit_i_set(unsigned char c, int x){
+    unsigned char mask = 1 << x;
+    return mask & c;
+}
+ 
+ 
+Tree *write_extract(unsigned char c, Tree *move_root, Tree  *root, FILE *output, int byte)
+{
+    int i;
+    int bit_set;
+    for(i=7; i>=0; i--)
+    {
+        bit_set = is_bit_i_set(c, i);
+        if(bit_set)
+        {
+            //printf("1\n");
+            move_root = move_root->right;
+        }
+        else
+        {
+            //printf("0\n");
+            move_root = move_root->left;
+        }
+        if(move_root->left == NULL && move_root->right == NULL)
+        {
+            //printf("%c\n\n", move_root->caracter);
+            fputc(move_root->caractere, output);
+            move_root = root;
+        }
+    }
+    return move_root;
+}
+ 
+void extract (Tree *root)
+{
+    int i, cnt;
+    cnt = 0;
+    FILE *file, *output;
+    file = fopen("huffman.txt", "rb");
+    unsigned char positivo;
+    int counter = 0;
+    char negativo;
+    Node_list *first, *aux;
+   
+    first = creatLinkedList();
+    positivo = fgetc(file);
+//  first = insertNode(positivo);
+//  aux = first; // Não perder a referência do primeiro nó
+//  counter++;
+//  printf("caracter:%c\n", aux->caracter);
+    while( (negativo = (positivo = fgetc(file))) != EOF)
+    {
+        cnt++;
+        if(cnt == arvore+2)
+        {
+            first = insertNode(positivo);
+            aux = first; // Não perder a referência do primeiro nó
+            counter++;
+        }
+        if(cnt > arvore+2)
+        {
+        aux->NextNode = insertNode(positivo);
+        aux = aux->NextNode;
+//      printf("caracter:%c\n", aux->caracter);
+        counter++;
+        }
+    }
+    Tree *move_root = root;   // não perder a referência da raiz
+    output = fopen("final.txt", "wb");
+//  printf("aaquii%d\n", counter);
+    for(i=0; i<counter; i++)
+    {
+        if(i == counter -1)
+        {
+            move_root = write_extract(first->caracter, move_root, root, output, (8 - trash));
+            free(first);
+        }
+        else
+        {
+            move_root = write_extract(first->caracter, move_root, root, output, 8);
+            aux = first;
+            first = first->NextNode;
+            free(aux);
+        }
+    }
+}
+ 
+Tree *recreate(Tree *bt){
+    if(string_tree[idx] == '\\')
+    {
+        idx++;
+        bt = createTree(string_tree[idx]);
+        return bt;
+    }
+        bt = createTree(string_tree[idx]);
+        if(string_tree[idx] != '*')return bt;
+        idx += 1;
+        bt->left = recreate(bt->left);
+        idx += 1;
+        bt->right = recreate(bt->right);
+        return bt;
+}
+ 
+void printPreOrder(Tree *bt){
+    if(!isEmpty(bt)){
+        printf("%c ", bt->caractere);
+        printPreOrder(bt->left);
+        printPreOrder(bt->right);
+    }
+}
+ 
+void descomprimir()
+{
+    int i, j;
+    FILE *file;
+    file = fopen("huffman.txt", "rb");
+    unsigned char first_byte, second_byte;
+    first_byte = fgetc(file);
+    trash = 0;
+    trash = first_byte>>5;
+    int tree  = 0;
+    tree |= (first_byte<<3)&(0xFF);
+    tree = tree<<5;  
+    second_byte = fgetc(file);
+    tree |= second_byte;
+//  printf("lixo%d Arvore%d\n", trash, tree);
+    arvore = tree;
+    for(i=0; i<tree; i++)
+    {
+        string_tree[i] = fgetc(file);
+    }
+}
+ 
+int main(){
+    int j;
+    Tree *bt;
+    bt = creatempty();
+    idx = 0;
+    descomprimir();
+    for(j = 0; j < strlen(string_tree); j++)printf("%c\n", string_tree[j]);
+    bt = recreate(bt);
+    printPreOrder(bt); 
+    extract(bt);
+ 
+}
